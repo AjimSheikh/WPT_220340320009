@@ -1,0 +1,122 @@
+<html>
+
+<body>
+	<Br />
+	<input type="text" name="bookid" id="bookid" placeholder="Book ID" /> <span id="msg">Message Will Appear
+		Here</span><Br />
+	<input type="text" name="bookname" id="bookname" placeholder="Book Name" /><Br />
+	<input type="text" name="price" id="price" placeholder="Book Price" /><Br /><br>
+	<button id="b1" disabled>Update Book Price</button>
+	<!-- I have disabled Update button. it will get enabled if we found the book id in our database -->
+
+</body>
+
+<script src="jquery-3.5.1.min.js"></script>
+<script>//our scrip will come here 
+
+
+	// here we are creating DOMContentLoaded using Jquery to load all the HTML Tags
+	$(document).ready(function () {
+		console.log("no more sins");
+		//=====================BLUR EVENT=================================
+		$("#bookid").blur(() => {
+			console.log("blur works");
+
+			let inputt = $("#bookid").val();
+			console.log(inputt);
+
+			$.ajax({
+				type: "get",
+				dataType: "json",// I have used datatype as text earlier for poc
+				url: "http://localhost:8081/pocForBlur",
+				data: { input: inputt },//here we are passing data to server
+				// below line will get data from server
+				success: function (data) {
+					if (data.status) {
+						console.log("all ok");
+						$("#msg").text("Book ID is Found");
+						$("#bookname").val(data.bookdetail.bookname);
+						$("#price").val(data.bookdetail.price);
+						document.querySelector("#b1").disabled = false;
+						//update button will be enabled as book id is found
+					}
+					else {
+						$("#msg").text("Book ID is Not Found");
+						$("#bookname").val("");
+						$("#price").val("");
+						document.querySelector("#b1").disabled = true;
+					}
+				},
+				error: function (e) {
+					alert('we have trouble ' + JSON.stringify(e));
+				}
+			});
+
+
+		});
+
+
+		//=====================UPDATE=====================================
+
+		$("#b1").click(function () {
+			console.log("Update works");
+			//alert("jquery works")
+
+			let inputt = { bookid: $("#bookid").val(), bookname: $("#bookname").val(), price: $("#price").val() }
+			console.log(inputt);
+
+			$.ajax({
+				type: "get",
+				dataType: "json",
+				url: "http://localhost:8081/pocForUpdate",
+				data: { input: inputt },
+				success: function (data) {
+					if (data) {
+
+						console.log("all ok");
+
+						$("#msg").text("Book Price is Updated");
+						$("#bookname").val("");
+						$("#price").val("");
+						document.querySelector("#b1").disabled = true;
+					}
+					else {
+						$("#msg").text("Book Price is Not Updated");
+						$("#bookname").val("");
+						$("#price").val("");
+						document.querySelector("#b1").disabled = true;
+					}
+
+				},
+				error: function (e) {
+					alert('we have trouble ' + JSON.stringify(e));
+				}
+			});
+		});
+	});
+</script>
+
+</html>
+<!-- 
+	BEFORE UPDATE
+
+mysql> select * from book;
++--------+--------------+-------+
+| bookid | bookname     | price |
++--------+--------------+-------+
+|    511 | Last Ride    |   650 |
+|    611 | GlobalFunSin |   950 |
+|    711 | Focus Arch   |   990 |
++--------+--------------+-------+
+
+	AFTER UPDATE
+
+mysql> select * from book;
++--------+--------------+-------+
+| bookid | bookname     | price |
++--------+--------------+-------+
+|    511 | Last Ride    |   850 |
+|    611 | GlobalFunSin |   850 |
+|    711 | Focus Arch   |  1000 |
++--------+--------------+-------+
+ -->
